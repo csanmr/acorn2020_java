@@ -15,9 +15,16 @@ public class MainClass01 {
 		Object p5=new HandPhone(); //Object
 		
 		//이미 만들어진 객체의 참조값을 다른 type으로 받아보기
-		Phone p6=p3;
+		Phone p6=p3; // p3의 참조값(id)을 그대로 p6에 넣음 
 		Object p7=p3;
+		HandPhone p8=(HandPhone)p5; //HandPhone p8=p5;하면 문법오류, 캐스팅 연산자 사용하면 가능
 		//String str=p3; //오류! 부모타입으로는 받을 수 있지만 상관없는 타입으로는 불가능
+		p8.mobileCall();
+		
+		byte b=10;
+		int i=b;
+		int i2=10;
+		byte b2=(byte)i2;
 		
 	}
 }
