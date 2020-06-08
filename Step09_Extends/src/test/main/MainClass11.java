@@ -10,7 +10,7 @@ public class MainClass11 {
 	 *  영화를 보는 프로그래밍의 목적을 달성해보세요
 	 */
 	/*
-	 * Men객체를 새엇ㅇ해보자
+	 * Men객체를 생성해보자
 	 * 객체 생성은 new 예약어와 함께 class명() 이였지?
 	 * 맞다~ class명()는 해당클래스의 생성자를 호출하는 거였지?
 	 * Men class의 생성자를 보니 public Men(Blood blood){} 이렇게 생겼네?

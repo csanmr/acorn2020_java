@@ -31,9 +31,15 @@ public class MainClass06 {
 				// TODO Auto-generated method stub
 				System.out.println("우리가 공격해요");
 				}
+			public void fly() {
+				System.out.println("날아요");
+			}
 			}
 			Weapon w2=new OurWeapon();
 			useWeapon(w2);
+			
+			OurWeapon w3=new OurWeapon(); //fly를 쓰려면 OurWeapon타입으로 받아야함.
+			w3.fly();
 			
 	}
 	

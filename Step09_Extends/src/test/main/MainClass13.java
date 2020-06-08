@@ -7,7 +7,7 @@ public class MainClass13 {
 	public static void main(String[] args) {
 		/*
 		 *  프로그래밍의 목적 : 아래의 useMen() 메소드를 호출하는 것
-		 *  아래의 useMe() 메소드를 호출해보세요.
+		 *  아래의 useMen() 메소드를 호출해보세요.
 		 */
 		MainClass13.useMen(new Men(new Blood("+","A")));
 		
