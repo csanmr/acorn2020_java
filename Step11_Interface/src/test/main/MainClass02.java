@@ -51,8 +51,9 @@ public class MainClass02 {
 			}
 		});
 		useRemocon(r3);
-
+	
 	}
+	
 	public static void useRemocon(Remocon r) {
 		r.up();
 		r.down();
