@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
@@ -29,20 +31,35 @@ public class Quiz03 extends JFrame  implements ActionListener{
 		//메뉴 아이템 3개 만들기
 		JMenuItem item_new=new JMenuItem("New");
 		JMenuItem item_open=new JMenuItem("Open");
-		JMenuItem item_save=new JMenuItem("Save");
 		
-		item_new.setActionCommand("New");
+		//JMenuItem item_save=new JMenuItem("Save");
+		
+		//default 생성자를 호출해서 객체를 생성한후
+		JMenuItem item_save=new JMenuItem();
+		//아이템text를 메소드를 이요해서 전달도 가능하다
+		item_save.setText("Save");
+		
+		//아이템에 액션 command 지정하기
+		item_new.setActionCommand("new");
+		item_open.setActionCommand("open");
+		item_save.setActionCommand("save");
+		
+		
 		item_new.addActionListener(this);
-		item_open.setActionCommand("Open");
 		item_open.addActionListener(this);
+		item_save.addActionListener(this);
 		//메뉴에 아이템 추가
 		JMenu menu1=new JMenu("File");
 		menu1.add(item_new);
 		menu1.add(item_open);
 		menu1.add(item_save);
+		
+		JMenu menu2=new JMenu();
+		menu2.setText("도움말");
 		//메뉴바에 메뉴 추가
 		JMenuBar mb=new JMenuBar();
 		mb.add(menu1);
+		mb.add(menu2);
 		//프레임에 메뉴바 장착
 		setJMenuBar(mb);
 		
@@ -50,7 +67,7 @@ public class Quiz03 extends JFrame  implements ActionListener{
 		area=new JTextArea();
 		add(area, BorderLayout.CENTER);
 		area.setBackground(Color.YELLOW);
-		area.setVisible(true);
+		area.setVisible(false);
 		
 //		JPanel panel=new JPanel();
 //		JButton testBtn=new JButton("눌러보셈");
@@ -64,40 +81,109 @@ public class Quiz03 extends JFrame  implements ActionListener{
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
 	}
+	// File > 메뉴아이템을 클릭하면 호출되는 메소드
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		//눌러진 아이템의 액션 command를 읽어온다.
+		String command=e.getActionCommand();
+		if(command.equals("new")) { //아이템 New를 눌렀을 때
+			area.setVisible(true); //JTextArea를 보이게 하고
+			area.grabFocus(); //포커스를 준다.
+		}else if(command.equals("open")) { //아이템 Open을 눌렀을 때
+			area.setText("");
+			openContent();
+		}else if(command.equals("save")) { //아이템 Save를 눌렀을 때
+			saveContent();
+		}
+	}
+	//파일에 있는 문자열을 읽어와서 출력하는 작업을 하는 메소드
+	public void openContent() {
 		JFileChooser fc=new JFileChooser("c:/acorn2020/myFolder");
+		//파일을 open하는 다이얼로그 띄우기
 		int result=fc.showOpenDialog(this);
-		try {
 		if(result==JFileChooser.APPROVE_OPTION) {
-			//선택한 파일을 access할 수 있는 파일 객체
-			File selectedFile=fc.getSelectedFile();
-			String fd=selectedFile.getPath();// 파일의 경로 알아냄
-			System.out.println(fd);
-			FileReader fr;
-			
-				fr = new FileReader(selectedFile);
-			
-			BufferedReader br=new BufferedReader(fr);
-			while(true) {
+			//JTextArea가 화면에 보이도록
+			area.setVisible(true);
+			//open할 예정인 파일객체의 참조값 얻어오기
+			File file=fc.getSelectedFile();
+			try {
+				FileReader fw=new FileReader(file);
+				BufferedReader br=new BufferedReader(fw);
+				while(true) {
 				String line=br.readLine();
-				area.append(line);
-				area.append("\r\n"); //개행기호도 출력해준다
 				if(line==null) {
 					break;
 				}
+				//JTextArea에 문자열을 개행기호와 함께 append(누적출력)하기
+				area.append(line);
+				area.append("\r\n");
+			}
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
-			
-		}else if(result==JFileChooser.CANCEL_OPTION) {
-			
-		}else if(result==JFileChooser.ERROR_OPTION) {
-			
 		}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+	}
+	
+	//파일에 저장하는 작업을 하는 메소드
+	public void saveContent() {
+		//JTextArea에 입력한 문자열을 읽어온다
+		String content=area.getText();
+		JFileChooser fc=new JFileChooser("c:/acorn2020/myFolder");
+		int result=fc.showSaveDialog(this);
+		if(result==JFileChooser.APPROVE_OPTION) {
+			//새로 만들 예정인 File객체의 참조값 얻어오기
+			File file=fc.getSelectedFile();
+			
+			try {
+				//파일에 문자열을 출력할 수 있는 객체
+				FileWriter fw=new FileWriter(file);
+				fw.write(content);
+				fw.flush();
+				fw.close();
+				JOptionPane.showMessageDialog(this,file.getName()+" 파일을 저장했습니다.");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }
+/*
+내가 했던 것
+JFileChooser fc=new JFileChooser("c:/acorn2020/myFolder");
+int result=fc.showOpenDialog(this);
+try {
+if(result==JFileChooser.APPROVE_OPTION) {
+	//선택한 파일을 access할 수 있는 파일 객체
+	File selectedFile=fc.getSelectedFile();
+	String fd=selectedFile.getPath();// 파일의 경로 알아냄
+	System.out.println(fd);
+	FileReader fr;
+	
+		fr = new FileReader(selectedFile);
+	
+	BufferedReader br=new BufferedReader(fr);
+	while(true) {
+		String line=br.readLine();
+		area.append(line);
+		area.append("\r\n"); //개행기호도 출력해준다
+		if(line==null) {
+			break;
+		}
+	}
+	
+	
+}else if(result==JFileChooser.CANCEL_OPTION) {
+	
+}else if(result==JFileChooser.ERROR_OPTION) {
+	
+}
+} catch (IOException e1) {
+	// TODO Auto-generated catch block
+	e1.printStackTrace();
+}
+*/
