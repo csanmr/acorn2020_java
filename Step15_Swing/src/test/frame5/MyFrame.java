@@ -16,9 +16,11 @@ public class MyFrame extends JFrame {
 		//버튼
 		JButton sendBtn=new JButton("전송");
 		JButton removeBtn=new JButton("삭제");
+		JButton testBtn=new JButton("테스트");
 		//프레임에 버튼 추가하기(FlowLayout의 영향을 받는다)
 		add(sendBtn);
 		add(removeBtn);
+		add(testBtn);
 		
 		//ActionListener 인터페이스 type의 참조값
 		ActionListener listener=new ActionListener() {
@@ -32,6 +34,14 @@ public class MyFrame extends JFrame {
 		sendBtn.addActionListener(listener);
 		//lamda식 활용해보기
 		removeBtn.addActionListener((e)->{JOptionPane.showMessageDialog(MyFrame.this, "전송합니다~");});
+		ActionListener listener3=new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				JOptionPane.showMessageDialog(MyFrame.this, "전송합니다~");
+			}
+		};
+		testBtn.addActionListener(listener3);
 	}
 	
 	public static void main(String[] args) {

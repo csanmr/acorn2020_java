@@ -8,7 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-public class MyFrame extends JFrame implements ActionListener {
+public class MyFrame extends JFrame implements ActionListener  {
 	//default 생성자
 	public MyFrame() {
 		//레이아웃 매니저 지정하기

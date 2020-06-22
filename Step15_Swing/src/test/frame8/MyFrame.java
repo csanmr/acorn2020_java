@@ -31,6 +31,7 @@ public class MyFrame extends JFrame implements ActionListener {
 		//프레임을 닫으면 자동으로 프로세스가 종료되도록 한다 3=JFrame.EXIT_ON_CLOSE 와같다
 		frame.setDefaultCloseOperation(3);
 		frame.setBounds(100, 100, 500, 500);
+		
 		frame.setVisible(true);
 	}
 	//ActionListener 인터페이스를 구현해서 강제오버라이드 된 메소드

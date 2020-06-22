@@ -1,4 +1,4 @@
-package example4;
+package example5;
 
 
 import java.io.BufferedReader;
@@ -13,6 +13,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class ServerMain {
 	//static 필드
 	static List<ServerThread> threadList=new ArrayList<>();
@@ -25,6 +28,7 @@ public class ServerMain {
 			serverSocket=new ServerSocket(5000);
 			while(true) {
 				System.out.println("클라이언트의 Socket 연결 요청을 대기합니다.");
+				//클라이언트의 소켓접속을 기다린다.
 				Socket socket=serverSocket.accept();
 				System.out.println("클라이언트가 접속을 했습니다.");
 				//방금 접속한 클라이언트를 응대할 스레드를 시작 시킨다.
@@ -49,6 +53,8 @@ public class ServerMain {
 		Socket socket;
 		//클라이언트에게 출력할 수 있는 문자열을 있는 객체
 		BufferedWriter bw;
+		//클라이언트의 대화명을 저장할 필드
+		String chatName;
 		
 		//생성자의 인자로 Socket 객체를 전달받도록 한다.
 		public ServerThread(Socket socket) {
@@ -63,6 +69,20 @@ public class ServerMain {
 				bw.newLine(); //개행기호출력
 				bw.flush(); //방출
 			}
+		}
+		//참여자 목록을 얻어내서 Client에게 출력해주는 메소드
+		public void sendChatNameList() {
+			JSONObject jsonObj=new JSONObject();
+			JSONArray jsonArr=new JSONArray();
+			//스레드 리스트에서 대화명을 순서대로 참조해서 JSONArray 객체에 순서대로 넣기
+			for(int i=0; i<threadList.size(); i++) {
+				ServerThread tmp=threadList.get(i);
+				jsonArr.put(i, tmp.chatName);
+			}
+			
+			jsonObj.put("type", "members");
+			jsonObj.put("list", jsonArr);
+			
 		}
 		
 		//새로운 작업 단위가 시작되는 run() 메소드 
@@ -90,8 +110,23 @@ public class ServerMain {
 				 * 실행순서가 try블럭을 벗어나면 run()메소드가 리턴하게 되고
 				 * run() 메소드가 리턴되면 해당 스레드는 종료가 된다.
 				 */
+					//클라이언트가 전송하는 문자열을 읽어낸다
 					String msg=br.readLine();
 					System.out.println("메세지:"+msg);
+					//전송된 JSON문자열을 사용할 준비를 한다
+					JSONObject jsonObj=new JSONObject(msg);
+					//type을 읽어낸다
+					String type=jsonObj.getString("type");
+					if(type.equals("enter")) {
+						//현재 스레드가 대응하는 클라이언트의 대화명을 필드에 저장한다.
+						String chatName=jsonObj.getString("name");
+						this.chatName=chatName;
+						//대화명 목록을 보내준다.
+						sendChatNameList();
+					}else if(type.equals("msg")) {
+						
+					}
+					
 					//클라이언트에게 동일한 메세지를 보내는 메소드를 호출한다.
 					sendMessage(msg);
 					if(msg==null) { //클라이언트의 접속이 끊겼기 때문에
@@ -103,7 +138,14 @@ public class ServerMain {
 			}finally {
 				//접속이 끊겨서 종료되는 스레드는 List에서 제거한다.
 				threadList.remove(this);
+				//this가 퇴장한다고 메세지를 보낸다
 				try {
+					JSONObject jsonObj=new JSONObject();
+					jsonObj.put("type", "out");
+					jsonObj.put("name", this.chatName);
+					sendMessage(jsonObj.toString());
+					//대화ㅏ명목록을 보내준다
+					sendChatNameList();
 					if(socket!=null)socket.close();
 				}catch(Exception e) {}
 			}

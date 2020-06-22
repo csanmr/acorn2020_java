@@ -100,7 +100,7 @@ public class MyFrame extends JFrame implements ActionListener, KeyListener {
 		String command=e.getActionCommand();
 		if(command.equals(COMMAND_SEND)) {//전송 버튼을 눌렀을 때
 			send();
-		}else if(command.equals(COMMAND_REMOVE)){ //삭제 버튼을 눌렀을 때
+		}else if(command.equals("remove")){ //삭제 버튼을 눌렀을 때
 			//JList객체에게 선택 된 item이 있는지, 있다면 몇번째 아이템이 선택되었는지
 			//물어봐야한다.(메소드를 이용해서 알아낸다)
 			int selectedIndex=list.getSelectedIndex();
