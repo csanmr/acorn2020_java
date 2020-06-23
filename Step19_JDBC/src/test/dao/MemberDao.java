@@ -47,7 +47,7 @@ public class MemberDao {
 			String sql="SELECT name,addr"+" FROM member"+" WHERE num=?";
 			pstmt=conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			pstmt.executeUpdate();
+			rs=pstmt.executeQuery();
 			while(rs.next()) {
 				//MemberDto 객체 생성해서
 				dto=new MemberDto();
@@ -107,15 +107,16 @@ public class MemberDao {
 	}
 	
 	//회원 한명의 정보를 DB에서 삭제하는 메소드
-	public void delete(int num) {
+	public boolean delete(int num) {
 		Connection conn=null;
 		PreparedStatement pstmt=null;
+		int flag=0;
 		try {
 			conn=new DBConnect().getConn();
 			String sql="DELETE FROM member"+" WHERE num=?";
 			pstmt=conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
-			pstmt.executeUpdate();
+			flag=pstmt.executeUpdate();
 			System.out.println("회원 정보를 삭제했습니다.");
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -124,20 +125,25 @@ public class MemberDao {
 				if(pstmt!=null)pstmt.close();
 				if(conn!=null)conn.close();
 			}catch(Exception e) {}
+		}if(flag>0) {
+			return true;
+		}else {
+			return false;
 		}
 	}
 	
 	//회원정보를 DB에 저장하는 메소드
-	public void insert(MemberDto dto) {
+	public boolean insert(MemberDto dto) {
 		Connection conn=null;
 		PreparedStatement pstmt=null;
+		int flag=0;
 		try {
 			conn=new DBConnect().getConn();
 			String sql="INSERT INTO member"+" (num, name, addr)"+" VALUES(member_seq.NEXTVAL, ?, ?)";
 			pstmt=conn.prepareStatement(sql);
 			pstmt.setString(1, dto.getName());
 			pstmt.setString(2, dto.getAddr());
-			pstmt.executeUpdate();
+			flag=pstmt.executeUpdate();
 			System.out.println("회원정보를 추가했습니다.");
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -146,13 +152,18 @@ public class MemberDao {
 				if(pstmt!=null)pstmt.close();
 				if(conn!=null)conn.close();
 			}catch(Exception e) {}
+		}if(flag>0) {
+			return true;
+		}else {
+			return false;
 		}
 	}
 	
 	//회원 정보를 DB에서 수정하는 메소드
-	public void update(MemberDto dto) {
+	public boolean update(MemberDto dto) {
 		Connection conn=null;
 		PreparedStatement pstmt=null;
+		int flag=0;
 		try {
 			conn=new DBConnect().getConn();
 			String sql="UPDATE member"+" SET name=?,addr=?"+" WHERE num=?";
@@ -160,7 +171,8 @@ public class MemberDao {
 			pstmt.setString(1, dto.getName());
 			pstmt.setString(2, dto.getAddr());
 			pstmt.setInt(3, dto.getNum());
-			pstmt.executeUpdate();
+			//update된 row의 갯수가 반환 된다.
+			flag=pstmt.executeUpdate();
 			System.out.println("회원정보가 수정되었습니다.");
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -169,6 +181,11 @@ public class MemberDao {
 				if(pstmt!=null)pstmt.close();
 				if(conn!=null)conn.close();
 			}catch(Exception e) {}
+		}
+		if(flag>0) {
+			return true;
+		}else {
+			return false;
 		}
 	}
 }
