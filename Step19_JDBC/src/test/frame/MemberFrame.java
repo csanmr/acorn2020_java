@@ -3,6 +3,10 @@ package test.frame;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -18,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import test.dao.MemberDao;
 import test.dto.MemberDto;
 
-public class MemberFrame extends JFrame implements ActionListener {
+public class MemberFrame extends JFrame implements ActionListener, PropertyChangeListener {
 	//필드
 	JTextField inputName;
 	JTextField inputAddr;
@@ -57,7 +61,19 @@ public class MemberFrame extends JFrame implements ActionListener {
 		//칼럼명을 String[]에 순서대로 준비
 		String[] colNames= {"번호", "이름", "주소"};
 		//테이블에 출력할 정보를 가지고 있는 모델 객체 (칼럼명, row의 개수)
-		model=new DefaultTableModel(colNames, 0);
+		//model=new DefaultTableModel(colNames, 0); 이거에서 { }를 붙여 inner class로 만듬
+		model=new DefaultTableModel(colNames, 0) {
+			//인자로 전달되는 행(row), 열(column) 수정가능 여부를 리턴하는 메소드
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				// TODO Auto-generated method stub
+				//만일 첫번째(0번째) 칼럼이면 수정이 불가하도록 한다.
+				if(column==0) {
+					return true;
+				}
+				return true;
+			}
+		};
 		//모델을 테이블에 연결한다
 		table.setModel(model);
 		//스크롤이 가능하도록 테이블을 JScrollPane에 감싼다
@@ -74,6 +90,8 @@ public class MemberFrame extends JFrame implements ActionListener {
 		model.addRow(row2);
 		*/
 		displayMember();
+		//테이블에서 발생하는 이벤트 리스너 등록하기
+		table.addPropertyChangeListener(this);
 		
 	}
 	//테이블에 회원 목록을 출력하는 메소드
@@ -135,6 +153,11 @@ public class MemberFrame extends JFrame implements ActionListener {
 			if(selectedIndex==-1) {
 				return; //메소드를 여기서 끝내라(리턴해라)
 			}
+			//실제 삭제할 것인지 확인한다.
+			int selection=JOptionPane.showConfirmDialog(this, "선택된 row를 삭제하시겠습니까?");
+			if(selection!=JOptionPane.YES_OPTION) { // selection!=0 과 같음 yes옵션이 아니면 아무 일도X
+				return;
+			}
 			//2. 선택된 row의 첫번째 칼럼의 숫자를 읽어온다.(삭제할 회원의 번호)
 			int num=(int)model.getValueAt(selectedIndex, 0);
 			//3. MemberDao 객체를 이용해서 회원정보를 삭제한다.
@@ -142,5 +165,31 @@ public class MemberFrame extends JFrame implements ActionListener {
 			//4. table에 회원목록 다시 출력하기.
 			displayMember();
 		}
+	}
+	//현재 테이블 cell을 수정중인지 여부를 저장할 필드
+	boolean isEditing=false;
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		// TODO Auto-generated method stub
+		System.out.println("change");
+		System.out.println(evt.getPropertyName());
+		if(evt.getPropertyName().equals("tableCellEditor")) {
+			if(isEditing) { //수정중일때
+				//변화 된 값을 읽어와서 DB에 반영한다.
+				//수정된 칼럼에 있는 row 전체의 값을 읽어온다.
+				int selectedIndex=table.getSelectedRow();
+				int num=(int)model.getValueAt(selectedIndex, 0);
+				String name=(String)model.getValueAt(selectedIndex, 1);
+				String addr=(String)model.getValueAt(selectedIndex, 2);
+				//수정할 회원의 정보를 MemberDto객체에 담고
+				MemberDto dto=new MemberDto(num, name, addr);
+				//DB에 저장하기
+				MemberDao.getInstance().update(dto);
+				
+				isEditing=false;//수정중이 아니라고 표시한다
+			}
+			isEditing=true; //수정중이라고 표시한다.
+		}
+		
 	}
 }
